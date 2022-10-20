@@ -2,7 +2,7 @@ package skypro.hw2_14;
 
 public class IntegerListImpl implements IntegerList {
     private static final int DEFAULT_SIZE = 15;
-    private final Integer[] data;
+    private Integer[] data;
     private int capacity;
 
     public IntegerListImpl() {
@@ -27,11 +27,17 @@ public class IntegerListImpl implements IntegerList {
         checkItem(item);
         checkIndex(index, true);
         if (capacity >= data.length) {
-            throw new IllegalArgumentException("There is no space!");
+            grow();
         }
         System.arraycopy(data, index, data, index + 1, capacity - index);
         capacity++;
         return data[index] = item;
+    }
+
+    private void grow() {
+        Integer[] newData = new Integer[(int) (data.length * 1.5D)];
+        System.arraycopy(data, 0, newData, 0, capacity);
+        this.data = newData;
     }
 
     @Override
@@ -66,7 +72,7 @@ public class IntegerListImpl implements IntegerList {
 
         Integer[] arr = toArray();
 
-        sortInsertion(arr);
+        mergeSort(arr);
         int min = 0;
         int max = arr.length - 1;
         while (min <= max) {
@@ -81,8 +87,6 @@ public class IntegerListImpl implements IntegerList {
             }
         }
         return false;
-
-
     }
 
     @Override
@@ -174,4 +178,38 @@ public class IntegerListImpl implements IntegerList {
             arr[j] = temp;
         }
     }
+
+    private static void mergeSort(Integer[] arr) {
+        if (arr.length < 2) {
+            return;
+        }
+        int mid = arr.length / 2;
+        Integer[] left = new Integer[mid];
+        Integer[] right = new Integer[arr.length - mid];
+        System.arraycopy(arr, 0, left, 0, left.length);
+        System.arraycopy(arr, mid, right, 0, right.length);
+        mergeSort(left);
+        mergeSort(right);
+        merge(arr, left, right);
+    }
+
+    public static void merge(Integer[] arr, Integer[] left, Integer[] right) {
+        int mainP = 0;
+        int leftP = 0;
+        int rightP = 0;
+        while (leftP < left.length && rightP < right.length) {
+            if (left[leftP] <= right[rightP]) {
+                arr[mainP++] = left[leftP++];
+            } else {
+                arr[mainP++] = right[rightP++];
+            }
+        }
+        while (leftP < left.length) {
+            arr[mainP++] = left[leftP++];
+        }
+        while (rightP < right.length) {
+            arr[mainP++] = right[rightP++];
+        }
+    }
 }
+
